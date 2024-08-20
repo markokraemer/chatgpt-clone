@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import ChatMessage from '@/components/ChatMessage';
 import Sidebar from '@/components/Sidebar';
 import PromptTemplates from '@/components/PromptTemplates';
-import { Loader2, Sun, Moon, Settings, Send, User, X } from "lucide-react";
+import { Loader2, Sun, Moon, Settings, Send, User, X, Menu } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { motion, AnimatePresence } from "framer-motion";
@@ -35,6 +35,7 @@ export default function Home() {
   const [selectedModel, setSelectedModel] = useState('gpt-3.5-turbo');
   const [editingChatName, setEditingChatName] = useState(null);
   const [isProcessingTemplate, setIsProcessingTemplate] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
 
@@ -95,6 +96,7 @@ export default function Home() {
     setCurrentChatId(chatId);
     setMessages(chatHistories[chatId]?.messages || []);
     setIsLoading(false);
+    setIsMobileMenuOpen(false);
   };
 
   const handleDeleteChat = (chatId) => {
@@ -152,33 +154,59 @@ export default function Home() {
   };
 
   const handleSelectTemplate = (templateText) => {
+    console.log('Template selected:', templateText);
     setIsProcessingTemplate(true);
     setInput(templateText);
-    setTimeout(() => setIsProcessingTemplate(false), 500); // Simulating processing time
+    setTimeout(() => setIsProcessingTemplate(false), 500);
   };
 
   const handleClearInput = () => {
     setInput('');
   };
 
+  const toggleTheme = () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    console.log('Switching theme to:', newTheme);
+    setTheme(newTheme);
+  };
+
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <div className="flex flex-col md:flex-row h-screen bg-white dark:bg-gray-900">
-        <Sidebar
-          onNewChat={handleNewChat}
-          onSelectChat={handleSelectChat}
-          onDeleteChat={handleDeleteChat}
-          onRenameChat={handleRenameChat}
-          currentChatId={currentChatId}
-          chatHistories={chatHistories}
-          editingChatName={editingChatName}
-          setEditingChatName={setEditingChatName}
-        />
+        <div className={`md:hidden ${isMobileMenuOpen ? 'block' : 'hidden'}`}>
+          <Sidebar
+            onNewChat={handleNewChat}
+            onSelectChat={handleSelectChat}
+            onDeleteChat={handleDeleteChat}
+            onRenameChat={handleRenameChat}
+            currentChatId={currentChatId}
+            chatHistories={chatHistories}
+            editingChatName={editingChatName}
+            setEditingChatName={setEditingChatName}
+          />
+        </div>
+        <div className="hidden md:block">
+          <Sidebar
+            onNewChat={handleNewChat}
+            onSelectChat={handleSelectChat}
+            onDeleteChat={handleDeleteChat}
+            onRenameChat={handleRenameChat}
+            currentChatId={currentChatId}
+            chatHistories={chatHistories}
+            editingChatName={editingChatName}
+            setEditingChatName={setEditingChatName}
+          />
+        </div>
         <div className="flex-1 flex flex-col">
           <div className="flex justify-between items-center p-4 bg-white dark:bg-gray-800 border-b">
-            <h1 className="text-2xl font-bold">ChatGPT</h1>
+            <div className="flex items-center">
+              <Button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden mr-2" variant="ghost" size="icon">
+                <Menu className="h-6 w-6" />
+              </Button>
+              <h1 className="text-2xl font-bold">ChatGPT</h1>
+            </div>
             <div className="flex items-center space-x-2">
-              <Button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} variant="ghost" size="icon">
+              <Button onClick={toggleTheme} variant="ghost" size="icon">
                 {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </Button>
               <Button onClick={() => setShowSettings(true)} variant="ghost" size="icon">

@@ -7,6 +7,12 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { motion } from "framer-motion";
 
 export default function Sidebar({ onNewChat, onSelectChat, onDeleteChat, onRenameChat, currentChatId, chatHistories, editingChatName, setEditingChatName }) {
+  const [localChatHistories, setLocalChatHistories] = useState(chatHistories);
+
+  useEffect(() => {
+    setLocalChatHistories(chatHistories);
+  }, [chatHistories]);
+
   const handleNewChat = () => {
     onNewChat();
   };
@@ -31,7 +37,7 @@ export default function Sidebar({ onNewChat, onSelectChat, onDeleteChat, onRenam
         <PlusCircle className="mr-2 h-4 w-4" /> New Chat
       </Button>
       <ScrollArea className="flex-grow">
-        {Object.entries(chatHistories).map(([chatId, chat]) => (
+        {Object.entries(localChatHistories).map(([chatId, chat]) => (
           <motion.div
             key={chatId}
             initial={{ opacity: 0, y: 20 }}
