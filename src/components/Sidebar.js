@@ -6,27 +6,18 @@ import { PlusCircle, MessageSquare, Trash2, Edit2 } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { motion } from "framer-motion";
 
-export default function Sidebar({ onNewChat, onSelectChat, onDeleteChat, onRenameChat, currentChatId, chatHistories }) {
-  const [editingChatId, setEditingChatId] = useState(null);
-  const [editingChatName, setEditingChatName] = useState('');
-
+export default function Sidebar({ onNewChat, onSelectChat, onDeleteChat, onRenameChat, currentChatId, chatHistories, editingChatName, setEditingChatName }) {
   const handleNewChat = () => {
-    const newChatId = Date.now().toString();
-    onNewChat(newChatId);
+    onNewChat();
   };
 
   const handleDeleteChat = (chatId) => {
     onDeleteChat(chatId);
   };
 
-  const handleRenameChat = (chatId) => {
-    if (editingChatId === chatId) {
-      onRenameChat(chatId, editingChatName);
-      setEditingChatId(null);
-    } else {
-      setEditingChatId(chatId);
-      setEditingChatName(chatHistories[chatId]?.name || '');
-    }
+  const handleRenameChat = (chatId, newName) => {
+    onRenameChat(chatId, newName);
+    setEditingChatName(null);
   };
 
   return (
@@ -34,7 +25,7 @@ export default function Sidebar({ onNewChat, onSelectChat, onDeleteChat, onRenam
       initial={{ x: -300 }}
       animate={{ x: 0 }}
       transition={{ duration: 0.5 }}
-      className="w-64 h-screen bg-gray-800 text-white p-4 flex flex-col"
+      className="w-full md:w-64 h-auto md:h-screen bg-gray-800 text-white p-4 flex flex-col"
     >
       <Button onClick={handleNewChat} className="mb-4 w-full">
         <PlusCircle className="mr-2 h-4 w-4" /> New Chat
@@ -49,12 +40,12 @@ export default function Sidebar({ onNewChat, onSelectChat, onDeleteChat, onRenam
             transition={{ duration: 0.3 }}
             className="flex items-center mb-2"
           >
-            {editingChatId === chatId ? (
+            {editingChatName === chatId ? (
               <Input
-                value={editingChatName}
-                onChange={(e) => setEditingChatName(e.target.value)}
-                onBlur={() => handleRenameChat(chatId)}
-                onKeyPress={(e) => e.key === 'Enter' && handleRenameChat(chatId)}
+                value={chat.name}
+                onChange={(e) => onRenameChat(chatId, e.target.value)}
+                onBlur={() => setEditingChatName(null)}
+                onKeyPress={(e) => e.key === 'Enter' && setEditingChatName(null)}
                 className="flex-grow mr-2 text-black"
               />
             ) : (
@@ -67,7 +58,7 @@ export default function Sidebar({ onNewChat, onSelectChat, onDeleteChat, onRenam
                 {chat.name}
               </Button>
             )}
-            <Button onClick={() => handleRenameChat(chatId)} variant="ghost" size="icon">
+            <Button onClick={() => setEditingChatName(chatId)} variant="ghost" size="icon">
               <Edit2 className="h-4 w-4" />
             </Button>
             <AlertDialog>

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ChatMessage from '@/components/ChatMessage';
 import Sidebar from '@/components/Sidebar';
-import { Loader2, Sun, Moon, Settings } from "lucide-react";
+import { Loader2, Sun, Moon, Settings, Edit2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { motion, AnimatePresence } from "framer-motion";
@@ -32,6 +32,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [selectedModel, setSelectedModel] = useState('gpt-3.5-turbo');
+  const [editingChatName, setEditingChatName] = useState(null);
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
 
@@ -57,7 +58,13 @@ export default function Home() {
 
   const saveChatHistory = useCallback(() => {
     if (currentChatId && messages.length > 0) {
-      const updatedHistories = { ...chatHistories, [currentChatId]: { name: `Chat ${Object.keys(chatHistories).length + 1}`, messages } };
+      const updatedHistories = { 
+        ...chatHistories, 
+        [currentChatId]: { 
+          ...chatHistories[currentChatId],
+          messages 
+        } 
+      };
       setChatHistories(updatedHistories);
       localStorage.setItem('chatHistories', JSON.stringify(updatedHistories));
     }
@@ -68,6 +75,7 @@ export default function Home() {
   }, [saveChatHistory]);
 
   const handleNewChat = () => {
+    setIsLoading(true);
     const newChatId = Date.now().toString();
     const chatName = prompt("Enter a name for the new chat:");
     if (chatName) {
@@ -77,6 +85,7 @@ export default function Home() {
       setCurrentChatId(newChatId);
       setMessages([]);
     }
+    setIsLoading(false);
   };
 
   const handleSelectChat = (chatId) => {
@@ -104,24 +113,28 @@ export default function Home() {
       setChatHistories(updatedHistories);
       localStorage.setItem('chatHistories', JSON.stringify(updatedHistories));
     }
+    setEditingChatName(null);
   };
 
   const handleExportChat = () => {
     if (currentChatId && messages.length > 0) {
-      const chatContent = messages.map(msg => `${msg.role}: ${msg.content}`).join('\n');
-      const blob = new Blob([chatContent], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `chat_export_${currentChatId}.txt`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      toast({
-        title: "Chat Exported",
-        description: "Your chat history has been exported successfully.",
-      });
+      const confirmExport = window.confirm("Are you sure you want to export this chat?");
+      if (confirmExport) {
+        const chatContent = messages.map(msg => `${msg.role}: ${msg.content}`).join('\n');
+        const blob = new Blob([chatContent], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `chat_export_${currentChatId}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        toast({
+          title: "Chat Exported",
+          description: "Your chat history has been exported successfully.",
+        });
+      }
     }
   };
 
@@ -138,7 +151,7 @@ export default function Home() {
 
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
+      <div className="flex flex-col md:flex-row h-screen bg-gray-100 dark:bg-gray-900">
         <Sidebar
           onNewChat={handleNewChat}
           onSelectChat={handleSelectChat}
@@ -146,6 +159,8 @@ export default function Home() {
           onRenameChat={handleRenameChat}
           currentChatId={currentChatId}
           chatHistories={chatHistories}
+          editingChatName={editingChatName}
+          setEditingChatName={setEditingChatName}
         />
         <div className="flex-1 flex flex-col">
           <div className="flex justify-between items-center p-4 bg-white dark:bg-gray-800">

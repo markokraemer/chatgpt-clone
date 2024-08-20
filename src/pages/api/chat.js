@@ -1,12 +1,15 @@
-import { Configuration, OpenAIApi } from 'openai-edge';
+import { Configuration, OpenAIApi } from 'openai';
 import { OpenAIStream, StreamingTextResponse } from 'ai';
 
-export const runtime = 'edge';
+export const config = {
+  runtime: 'edge',
+};
 
-const config = new Configuration({
+const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
-const openai = new OpenAIApi(config);
+
+const openai = new OpenAIApi(configuration);
 
 export default async function handler(req) {
   try {
@@ -14,8 +17,8 @@ export default async function handler(req) {
 
     const response = await openai.createChatCompletion({
       model: model || 'gpt-3.5-turbo',
-      stream: true,
       messages,
+      stream: true,
     });
 
     const stream = OpenAIStream(response);
