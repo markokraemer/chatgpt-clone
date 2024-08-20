@@ -174,3 +174,28 @@
   @apply resize-none overflow-hidden;
   transition: height 0.2s ease-out;
 }
+
+/* Dark mode styles */
+.dark body {
+  @apply bg-gray-900 text-white;
+}
+
+.dark .bg-white {
+  @apply bg-gray-800;
+}
+
+.dark .text-gray-800 {
+  @apply text-gray-200;
+}
+
+.dark .border-gray-200 {
+  @apply border-gray-700;
+}
+
+.dark .hover\:bg-gray-100:hover {
+  @apply hover:bg-gray-700;
+}
+
+.dark .bg-gray-100 {
+  @apply bg-gray-800;
+}

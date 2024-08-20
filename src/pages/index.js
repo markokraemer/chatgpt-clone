@@ -121,19 +121,22 @@ export default function Home() {
 
   const handleDeleteChat = (chatId) => {
     const updatedHistories = { ...chatHistories };
-    delete updatedHistories[chatId];
-    setChatHistories(updatedHistories);
-    localStorage.setItem('chatHistories', JSON.stringify(updatedHistories));
-    if (currentChatId === chatId) {
-      const remainingChatIds = Object.keys(updatedHistories);
-      if (remainingChatIds.length > 0) {
+    if (Object.keys(updatedHistories).length > 1) {
+      delete updatedHistories[chatId];
+      setChatHistories(updatedHistories);
+      localStorage.setItem('chatHistories', JSON.stringify(updatedHistories));
+      if (currentChatId === chatId) {
+        const remainingChatIds = Object.keys(updatedHistories);
         const newCurrentChatId = remainingChatIds[remainingChatIds.length - 1];
         setCurrentChatId(newCurrentChatId);
         setMessages(updatedHistories[newCurrentChatId].messages || []);
-      } else {
-        setCurrentChatId(null);
-        setMessages([]);
       }
+    } else {
+      toast({
+        title: "Cannot Delete",
+        description: "You must have at least one chat thread.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -170,13 +173,19 @@ export default function Home() {
   };
 
   const handleClearAllChats = () => {
-    setChatHistories({});
-    localStorage.removeItem('chatHistories');
-    setCurrentChatId(null);
+    const initialChatId = Date.now().toString();
+    const initialChat = {
+      name: "New Chat",
+      messages: []
+    };
+    const initialHistories = { [initialChatId]: initialChat };
+    setChatHistories(initialHistories);
+    setCurrentChatId(initialChatId);
     setMessages([]);
+    localStorage.setItem('chatHistories', JSON.stringify(initialHistories));
     toast({
       title: "All Chats Cleared",
-      description: "All chat histories have been cleared.",
+      description: "All chat histories have been cleared except for a new initial chat.",
     });
   };
 
@@ -194,6 +203,12 @@ export default function Home() {
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
   };
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    root.classList.remove('light', 'dark');
+    root.classList.add(theme);
+  }, [theme]);
 
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
@@ -248,7 +263,7 @@ export default function Home() {
                   <AlertDialogHeader>
                     <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete all your chat histories.
+                      This action cannot be undone. This will clear all your chat histories and create a new initial chat.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>

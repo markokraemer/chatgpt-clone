@@ -58,7 +58,9 @@ export default function Sidebar({ onNewChat, onSelectChat, onDeleteChat, onRenam
               <Button
                 onClick={() => onSelectChat(chatId)}
                 variant={currentChatId === chatId ? "secondary" : "ghost"}
-                className="flex-grow justify-start text-left px-3 py-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200"
+                className={`flex-grow justify-start text-left px-3 py-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 ${
+                  currentChatId === chatId ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200' : ''
+                }`}
               >
                 <MessageSquare className="mr-2 h-4 w-4" />
                 {chat.name}
