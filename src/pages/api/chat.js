@@ -10,6 +10,10 @@ const openai = new OpenAI({
 });
 
 export default async function handler(req) {
+  if (req.method !== 'POST') {
+    return new Response('Method Not Allowed', { status: 405 });
+  }
+
   try {
     const { messages, model } = await req.json();
 

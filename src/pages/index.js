@@ -34,6 +34,7 @@ export default function Home() {
   const [showSettings, setShowSettings] = useState(false);
   const [selectedModel, setSelectedModel] = useState('gpt-3.5-turbo');
   const [editingChatName, setEditingChatName] = useState(null);
+  const [isProcessingTemplate, setIsProcessingTemplate] = useState(false);
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
 
@@ -151,7 +152,9 @@ export default function Home() {
   };
 
   const handleSelectTemplate = (templateText) => {
+    setIsProcessingTemplate(true);
     setInput(templateText);
+    setTimeout(() => setIsProcessingTemplate(false), 500); // Simulating processing time
   };
 
   const handleClearInput = () => {
@@ -241,6 +244,7 @@ export default function Home() {
                       handleSubmit(e);
                     }
                   }}
+                  disabled={isProcessingTemplate}
                 />
                 {input && (
                   <Button
@@ -254,7 +258,7 @@ export default function Home() {
                   </Button>
                 )}
               </div>
-              <Button type="submit" disabled={isChatLoading} className="mb-1">
+              <Button type="submit" disabled={isChatLoading || isProcessingTemplate} className="mb-1">
                 <Send className="h-4 w-4" />
               </Button>
             </div>
