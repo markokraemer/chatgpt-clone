@@ -9,14 +9,22 @@ const config = new Configuration({
 const openai = new OpenAIApi(config);
 
 export default async function handler(req) {
-  const { messages } = await req.json();
+  try {
+    const { messages } = await req.json();
 
-  const response = await openai.createChatCompletion({
-    model: 'gpt-3.5-turbo',
-    stream: true,
-    messages,
-  });
+    const response = await openai.createChatCompletion({
+      model: 'gpt-3.5-turbo',
+      stream: true,
+      messages,
+    });
 
-  const stream = OpenAIStream(response);
-  return new StreamingTextResponse(stream);
+    const stream = OpenAIStream(response);
+    return new StreamingTextResponse(stream);
+  } catch (error) {
+    console.error('Error in chat API:', error);
+    return new Response(JSON.stringify({ error: 'An error occurred while processing your request.' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
 }
