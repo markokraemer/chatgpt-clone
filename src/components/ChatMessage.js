@@ -17,7 +17,7 @@ export default function ChatMessage({ message }) {
           <span className="sr-only">{message.role}</span>
           {isUser ? '👤' : '🤖'}
         </Avatar>
-        <div className={`chat-message-content flex-1 overflow-hidden ${isUser ? 'bg-blue-500 text-white' : 'bg-gray-100 dark:bg-gray-700'}`}>
+        <div className={`chat-message-content flex-1 overflow-hidden ${isUser ? 'bg-blue-500 text-white' : 'bg-gray-100 dark:bg-gray-700'} rounded-lg p-4`}>
           <p className="text-sm whitespace-pre-wrap">{message.content}</p>
         </div>
       </div>
