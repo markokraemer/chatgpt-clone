@@ -5,11 +5,10 @@ import { Textarea } from "@/components/ui/textarea";
 import ChatMessage from '@/components/ChatMessage';
 import Sidebar from '@/components/Sidebar';
 import PromptTemplates from '@/components/PromptTemplates';
-import { Loader2, Sun, Moon, Settings, Send, User, X, Menu } from "lucide-react";
+import { Loader2, Settings, Send, X, Menu } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { motion, AnimatePresence } from "framer-motion";
-import { useTheme } from "next-themes";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -37,7 +36,6 @@ export default function Home() {
   const [isProcessingTemplate, setIsProcessingTemplate] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { toast } = useToast();
-  const { theme, setTheme } = useTheme();
 
   const { messages, input, handleInputChange, handleSubmit, setMessages, setInput, isLoading: isChatLoading } = useChat({
     api: '/api/chat',
@@ -200,19 +198,9 @@ export default function Home() {
     setInput('');
   };
 
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
-
-  useEffect(() => {
-    const root = window.document.documentElement;
-    root.classList.remove('light', 'dark');
-    root.classList.add(theme);
-  }, [theme]);
-
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <div className="flex flex-col md:flex-row h-screen bg-white dark:bg-gray-900">
+      <div className="flex flex-col md:flex-row h-screen bg-white">
         <div className={`md:hidden ${isMobileMenuOpen ? 'block' : 'hidden'}`}>
           <Sidebar
             onNewChat={handleNewChat}
@@ -238,7 +226,7 @@ export default function Home() {
           />
         </div>
         <div className="flex-1 flex flex-col">
-          <div className="flex justify-between items-center p-4 bg-white dark:bg-gray-800 border-b">
+          <div className="flex justify-between items-center p-4 bg-white border-b">
             <div className="flex items-center">
               <Button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden mr-2" variant="ghost" size="icon">
                 <Menu className="h-6 w-6" />
@@ -246,14 +234,8 @@ export default function Home() {
               <h1 className="text-2xl font-bold">ChatGPT</h1>
             </div>
             <div className="flex items-center space-x-2">
-              <Button onClick={toggleTheme} variant="ghost" size="icon">
-                {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-              </Button>
               <Button onClick={() => setShowSettings(true)} variant="ghost" size="icon">
                 <Settings className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="icon">
-                <User className="h-4 w-4" />
               </Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
@@ -297,7 +279,7 @@ export default function Home() {
               </div>
             )}
           </div>
-          <form onSubmit={handleSubmit} className="p-4 border-t bg-white dark:bg-gray-800">
+          <form onSubmit={handleSubmit} className="p-4 border-t bg-white">
             <div className="flex items-end space-x-2">
               <div className="relative flex-1">
                 <Textarea
@@ -330,7 +312,7 @@ export default function Home() {
                 <Send className="h-4 w-4" />
               </Button>
             </div>
-            <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+            <div className="mt-2 text-xs text-gray-500">
               Press Enter to send, Shift+Enter for new line
             </div>
           </form>
