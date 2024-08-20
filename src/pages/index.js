@@ -12,6 +12,19 @@ import { useTheme } from "next-themes";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ErrorBoundary } from 'react-error-boundary';
+
+function ErrorFallback({error, resetErrorBoundary}) {
+  return (
+    <div role="alert" className="p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+      <h2 className="text-lg font-semibold">Something went wrong:</h2>
+      <pre className="mt-2 text-sm">{error.message}</pre>
+      <button onClick={resetErrorBoundary} className="mt-4 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+        Try again
+      </button>
+    </div>
+  )
+}
 
 export default function Home() {
   const [currentChatId, setCurrentChatId] = useState(null);
@@ -23,6 +36,8 @@ export default function Home() {
   const { theme, setTheme } = useTheme();
 
   const { messages, input, handleInputChange, handleSubmit, setMessages, isLoading: isChatLoading } = useChat({
+    api: '/api/chat',
+    body: { model: selectedModel },
     onError: (error) => {
       console.error('Chat error:', error);
       toast({
@@ -52,14 +67,23 @@ export default function Home() {
     saveChatHistory();
   }, [saveChatHistory]);
 
-  const handleNewChat = (chatId) => {
-    setCurrentChatId(chatId);
-    setMessages([]);
+  const handleNewChat = () => {
+    const newChatId = Date.now().toString();
+    const chatName = prompt("Enter a name for the new chat:");
+    if (chatName) {
+      const updatedHistories = { ...chatHistories, [newChatId]: { name: chatName, messages: [] } };
+      setChatHistories(updatedHistories);
+      localStorage.setItem('chatHistories', JSON.stringify(updatedHistories));
+      setCurrentChatId(newChatId);
+      setMessages([]);
+    }
   };
 
   const handleSelectChat = (chatId) => {
+    setIsLoading(true);
     setCurrentChatId(chatId);
     setMessages(chatHistories[chatId]?.messages || []);
+    setIsLoading(false);
   };
 
   const handleDeleteChat = (chatId) => {
@@ -113,109 +137,109 @@ export default function Home() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
-      <Sidebar
-        onNewChat={handleNewChat}
-        onSelectChat={handleSelectChat}
-        onDeleteChat={handleDeleteChat}
-        onRenameChat={handleRenameChat}
-        currentChatId={currentChatId}
-        chatHistories={chatHistories}
-      />
-      <div className="flex-1 flex flex-col">
-        <div className="flex justify-between items-center p-4 bg-white dark:bg-gray-800">
-          <Button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
-            {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </Button>
-          <Button onClick={() => setShowSettings(true)}>
-            <Settings className="h-4 w-4 mr-2" /> Settings
-          </Button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive">Clear All Chats</Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete all your chat histories.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleClearAllChats}>Continue</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          <AnimatePresence>
-            {messages.map((message, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                <ChatMessage message={message} />
-              </motion.div>
-            ))}
-          </AnimatePresence>
-          {isChatLoading && (
-            <div className="flex justify-center">
-              <Loader2 className="h-6 w-6 animate-spin" />
-            </div>
-          )}
-        </div>
-        <form onSubmit={handleSubmit} className="p-4 border-t bg-white dark:bg-gray-800">
-          <div className="flex space-x-4">
-            <Input
-              value={input}
-              onChange={handleInputChange}
-              placeholder="Type your message..."
-              className="flex-1"
-            />
-            <Button type="submit" disabled={isChatLoading}>Send</Button>
-            <Button onClick={handleExportChat} disabled={!currentChatId || messages.length === 0}>
-              Export Chat
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
+        <Sidebar
+          onNewChat={handleNewChat}
+          onSelectChat={handleSelectChat}
+          onDeleteChat={handleDeleteChat}
+          onRenameChat={handleRenameChat}
+          currentChatId={currentChatId}
+          chatHistories={chatHistories}
+        />
+        <div className="flex-1 flex flex-col">
+          <div className="flex justify-between items-center p-4 bg-white dark:bg-gray-800">
+            <Button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
+            <Button onClick={() => setShowSettings(true)}>
+              <Settings className="h-4 w-4 mr-2" /> Settings
+            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive">Clear All Chats</Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete all your chat histories.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleClearAllChats}>Continue</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
-        </form>
-      </div>
-      <Dialog open={showSettings} onOpenChange={setShowSettings}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Chat Settings</DialogTitle>
-            <DialogDescription>
-              Customize your chat experience here.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="model" className="text-right">
-                AI Model
-              </Label>
-              <Select
-                id="model"
-                value={selectedModel}
-                onValueChange={setSelectedModel}
-              >
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select a model" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
-                  <SelectItem value="gpt-4">GPT-4</SelectItem>
-                </SelectContent>
-              </Select>
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {isLoading ? (
+              <div className="flex justify-center items-center h-full">
+                <Loader2 className="h-8 w-8 animate-spin" />
+              </div>
+            ) : (
+              <AnimatePresence>
+                {messages.map((message, i) => (
+                  <ChatMessage key={i} message={message} />
+                ))}
+              </AnimatePresence>
+            )}
+            {isChatLoading && (
+              <div className="flex justify-center">
+                <Loader2 className="h-6 w-6 animate-spin" />
+              </div>
+            )}
+          </div>
+          <form onSubmit={handleSubmit} className="p-4 border-t bg-white dark:bg-gray-800">
+            <div className="flex space-x-4">
+              <Input
+                value={input}
+                onChange={handleInputChange}
+                placeholder="Type your message..."
+                className="flex-1"
+              />
+              <Button type="submit" disabled={isChatLoading}>Send</Button>
+              <Button onClick={handleExportChat} disabled={!currentChatId || messages.length === 0}>
+                Export Chat
+              </Button>
             </div>
-          </div>
-          <DialogFooter>
-            <Button onClick={() => setShowSettings(false)}>Save changes</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+          </form>
+        </div>
+        <Dialog open={showSettings} onOpenChange={setShowSettings}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Chat Settings</DialogTitle>
+              <DialogDescription>
+                Customize your chat experience here.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="model" className="text-right">
+                  AI Model
+                </Label>
+                <Select
+                  id="model"
+                  value={selectedModel}
+                  onValueChange={setSelectedModel}
+                >
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select a model" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
+                    <SelectItem value="gpt-4">GPT-4</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button onClick={() => setShowSettings(false)}>Save changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </ErrorBoundary>
   );
 }
