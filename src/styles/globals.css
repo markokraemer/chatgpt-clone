@@ -172,3 +172,14 @@
   @apply resize-none overflow-hidden;
   transition: height 0.2s ease-out;
 }
+
+/* Mobile responsiveness */
+@media (max-width: 640px) {
+  .chat-message {
+    @apply flex-col items-start space-y-2;
+  }
+
+  .chat-message-content {
+    @apply w-full;
+  }
+}

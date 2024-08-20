@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ErrorBoundary } from 'react-error-boundary';
+import ApiTester from '@/components/ApiTester';
 
 function ErrorFallback({error, resetErrorBoundary}) {
   return (
@@ -36,6 +37,7 @@ export default function Home() {
   const [editingChatName, setEditingChatName] = useState(null);
   const [isProcessingTemplate, setIsProcessingTemplate] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showApiTester, setShowApiTester] = useState(false);
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
 
@@ -215,6 +217,9 @@ export default function Home() {
               <Button variant="ghost" size="icon">
                 <User className="h-4 w-4" />
               </Button>
+              <Button onClick={() => setShowApiTester(true)} variant="outline" size="sm">
+                Test API
+              </Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="ghost" size="sm">Clear All Chats</Button>
@@ -325,6 +330,20 @@ export default function Home() {
             </div>
             <DialogFooter>
               <Button onClick={() => setShowSettings(false)}>Save changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        <Dialog open={showApiTester} onOpenChange={setShowApiTester}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>API Tester</DialogTitle>
+              <DialogDescription>
+                Test the API functionality here.
+              </DialogDescription>
+            </DialogHeader>
+            <ApiTester />
+            <DialogFooter>
+              <Button onClick={() => setShowApiTester(false)}>Close</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
