@@ -55,9 +55,29 @@ export default function Home() {
   useEffect(() => {
     const storedHistories = localStorage.getItem('chatHistories');
     if (storedHistories) {
-      setChatHistories(JSON.parse(storedHistories));
+      const parsedHistories = JSON.parse(storedHistories);
+      setChatHistories(parsedHistories);
+      
+      // If there are existing chat histories, set the current chat to the most recent one
+      const chatIds = Object.keys(parsedHistories);
+      if (chatIds.length > 0) {
+        const mostRecentChatId = chatIds[chatIds.length - 1];
+        setCurrentChatId(mostRecentChatId);
+        setMessages(parsedHistories[mostRecentChatId].messages || []);
+      }
+    } else {
+      // If no chat histories exist, create an initial chat thread
+      const initialChatId = Date.now().toString();
+      const initialChat = {
+        name: "New Chat",
+        messages: []
+      };
+      const initialHistories = { [initialChatId]: initialChat };
+      setChatHistories(initialHistories);
+      setCurrentChatId(initialChatId);
+      localStorage.setItem('chatHistories', JSON.stringify(initialHistories));
     }
-  }, []);
+  }, [setMessages]);
 
   const saveChatHistory = useCallback(() => {
     if (currentChatId && messages.length > 0) {
@@ -105,8 +125,15 @@ export default function Home() {
     setChatHistories(updatedHistories);
     localStorage.setItem('chatHistories', JSON.stringify(updatedHistories));
     if (currentChatId === chatId) {
-      setCurrentChatId(null);
-      setMessages([]);
+      const remainingChatIds = Object.keys(updatedHistories);
+      if (remainingChatIds.length > 0) {
+        const newCurrentChatId = remainingChatIds[remainingChatIds.length - 1];
+        setCurrentChatId(newCurrentChatId);
+        setMessages(updatedHistories[newCurrentChatId].messages || []);
+      } else {
+        setCurrentChatId(null);
+        setMessages([]);
+      }
     }
   };
 
