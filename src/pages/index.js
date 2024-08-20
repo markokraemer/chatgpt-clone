@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ChatMessage from '@/components/ChatMessage';
 import Sidebar from '@/components/Sidebar';
-import { Loader2, Sun, Moon, Settings, Edit2 } from "lucide-react";
+import PromptTemplates from '@/components/PromptTemplates';
+import { Loader2, Sun, Moon, Settings, Send } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { motion, AnimatePresence } from "framer-motion";
@@ -149,9 +150,13 @@ export default function Home() {
     });
   };
 
+  const handleSelectTemplate = (template) => {
+    handleSubmit({ preventDefault: () => {} }, { prompt: template });
+  };
+
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <div className="flex flex-col md:flex-row h-screen bg-gray-100 dark:bg-gray-900">
+      <div className="flex flex-col md:flex-row h-screen bg-white dark:bg-gray-900">
         <Sidebar
           onNewChat={handleNewChat}
           onSelectChat={handleSelectChat}
@@ -163,35 +168,43 @@ export default function Home() {
           setEditingChatName={setEditingChatName}
         />
         <div className="flex-1 flex flex-col">
-          <div className="flex justify-between items-center p-4 bg-white dark:bg-gray-800">
-            <Button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
-              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </Button>
-            <Button onClick={() => setShowSettings(true)}>
-              <Settings className="h-4 w-4 mr-2" /> Settings
-            </Button>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive">Clear All Chats</Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete all your chat histories.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleClearAllChats}>Continue</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+          <div className="flex justify-between items-center p-4 bg-white dark:bg-gray-800 border-b">
+            <h1 className="text-2xl font-bold">ChatGPT</h1>
+            <div className="flex items-center space-x-2">
+              <Button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} variant="ghost" size="icon">
+                {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </Button>
+              <Button onClick={() => setShowSettings(true)} variant="ghost" size="icon">
+                <Settings className="h-4 w-4" />
+              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="ghost" size="sm">Clear All Chats</Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete all your chat histories.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleClearAllChats}>Continue</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
           </div>
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {isLoading ? (
               <div className="flex justify-center items-center h-full">
                 <Loader2 className="h-8 w-8 animate-spin" />
+              </div>
+            ) : messages.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full">
+                <h2 className="text-2xl font-bold mb-4">How can I help you today?</h2>
+                <PromptTemplates onSelectTemplate={handleSelectTemplate} />
               </div>
             ) : (
               <AnimatePresence>
@@ -207,15 +220,17 @@ export default function Home() {
             )}
           </div>
           <form onSubmit={handleSubmit} className="p-4 border-t bg-white dark:bg-gray-800">
-            <div className="flex space-x-4">
+            <div className="flex items-center space-x-2">
               <Input
                 value={input}
                 onChange={handleInputChange}
-                placeholder="Type your message..."
+                placeholder="Message ChatGPT..."
                 className="flex-1"
               />
-              <Button type="submit" disabled={isChatLoading}>Send</Button>
-              <Button onClick={handleExportChat} disabled={!currentChatId || messages.length === 0}>
+              <Button type="submit" disabled={isChatLoading}>
+                <Send className="h-4 w-4" />
+              </Button>
+              <Button onClick={handleExportChat} disabled={!currentChatId || messages.length === 0} variant="outline">
                 Export Chat
               </Button>
             </div>

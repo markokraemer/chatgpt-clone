@@ -72,10 +72,10 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
-/* Custom styles for the chat interface */
 .chat-container {
   @apply flex flex-col h-screen;
 }
@@ -88,20 +88,18 @@
   @apply p-4 border-t bg-white dark:bg-gray-800;
 }
 
-/* Sidebar styles */
 .sidebar {
-  @apply w-64 h-screen bg-gray-800 text-white p-4 flex flex-col;
+  @apply w-64 h-screen bg-gray-100 text-gray-800 p-4 flex flex-col;
 }
 
 .sidebar-button {
-  @apply w-full justify-start mb-2;
+  @apply w-full justify-start mb-2 text-left px-3 py-2 rounded-md hover:bg-gray-200 transition-colors duration-200;
 }
 
 .sidebar-scroll {
-  @apply flex-grow;
+  @apply flex-grow overflow-y-auto;
 }
 
-/* Responsive styles */
 @media (max-width: 640px) {
   .sidebar {
     @apply w-full h-auto;
@@ -112,16 +110,14 @@
   }
 }
 
-/* Dark mode styles */
 .dark .chat-input {
   @apply bg-gray-800 border-gray-700;
 }
 
 .dark .sidebar {
-  @apply bg-gray-900;
+  @apply bg-gray-900 text-gray-200;
 }
 
-/* Animations */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -131,9 +127,28 @@
   animation: fadeIn 0.3s ease-in-out;
 }
 
-/* Transitions */
 .transition-all {
   transition-property: all;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
+}
+
+.prompt-template {
+  @apply bg-gray-50 border border-gray-200 rounded-lg p-4 hover:bg-gray-100 transition-colors duration-200 cursor-pointer;
+}
+
+.chat-message {
+  @apply flex items-start space-x-4 animate-fade-in;
+}
+
+.chat-message-content {
+  @apply bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm max-w-3xl;
+}
+
+.user-message .chat-message-content {
+  @apply bg-blue-500 text-white;
+}
+
+.assistant-message .chat-message-content {
+  @apply bg-gray-100 dark:bg-gray-700;
 }

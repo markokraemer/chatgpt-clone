@@ -25,9 +25,9 @@ export default function Sidebar({ onNewChat, onSelectChat, onDeleteChat, onRenam
       initial={{ x: -300 }}
       animate={{ x: 0 }}
       transition={{ duration: 0.5 }}
-      className="w-full md:w-64 h-auto md:h-screen bg-gray-800 text-white p-4 flex flex-col"
+      className="w-full md:w-64 h-auto md:h-screen bg-gray-100 text-gray-800 p-4 flex flex-col"
     >
-      <Button onClick={handleNewChat} className="mb-4 w-full">
+      <Button onClick={handleNewChat} className="mb-4 w-full bg-gray-200 text-gray-800 hover:bg-gray-300">
         <PlusCircle className="mr-2 h-4 w-4" /> New Chat
       </Button>
       <ScrollArea className="flex-grow">
@@ -52,7 +52,7 @@ export default function Sidebar({ onNewChat, onSelectChat, onDeleteChat, onRenam
               <Button
                 onClick={() => onSelectChat(chatId)}
                 variant={currentChatId === chatId ? "secondary" : "ghost"}
-                className="flex-grow justify-start"
+                className="flex-grow justify-start text-left px-3 py-2 rounded-md hover:bg-gray-200 transition-colors duration-200"
               >
                 <MessageSquare className="mr-2 h-4 w-4" />
                 {chat.name}
