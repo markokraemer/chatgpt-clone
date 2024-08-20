@@ -41,7 +41,7 @@
     "@radix-ui/react-toggle-group": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.1",
     "@tanstack/react-query": "^5.51.11",
-    "ai": "^3.2.32",
+    "ai": "^3.3.11",
     "axios": "^1.7.2",
     "bcrypt": "^5.1.1",
     "class-variance-authority": "^0.7.0",
