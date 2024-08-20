@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useChat } from 'ai/react';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import ChatMessage from '@/components/ChatMessage';
 import Sidebar from '@/components/Sidebar';
 import PromptTemplates from '@/components/PromptTemplates';
-import { Loader2, Sun, Moon, Settings, Send } from "lucide-react";
+import { Loader2, Sun, Moon, Settings, Send, User } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { motion, AnimatePresence } from "framer-motion";
@@ -177,6 +177,9 @@ export default function Home() {
               <Button onClick={() => setShowSettings(true)} variant="ghost" size="icon">
                 <Settings className="h-4 w-4" />
               </Button>
+              <Button variant="ghost" size="icon">
+                <User className="h-4 w-4" />
+              </Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="ghost" size="sm">Clear All Chats</Button>
@@ -220,19 +223,26 @@ export default function Home() {
             )}
           </div>
           <form onSubmit={handleSubmit} className="p-4 border-t bg-white dark:bg-gray-800">
-            <div className="flex items-center space-x-2">
-              <Input
+            <div className="flex items-end space-x-2">
+              <Textarea
                 value={input}
                 onChange={handleInputChange}
                 placeholder="Message ChatGPT..."
-                className="flex-1"
+                className="flex-1 min-h-[60px] max-h-[200px] resize-none"
+                rows={1}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmit(e);
+                  }
+                }}
               />
-              <Button type="submit" disabled={isChatLoading}>
+              <Button type="submit" disabled={isChatLoading} className="mb-1">
                 <Send className="h-4 w-4" />
               </Button>
-              <Button onClick={handleExportChat} disabled={!currentChatId || messages.length === 0} variant="outline">
-                Export Chat
-              </Button>
+            </div>
+            <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+              Press Enter to send, Shift+Enter for new line
             </div>
           </form>
         </div>
