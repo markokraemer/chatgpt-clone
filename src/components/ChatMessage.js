@@ -12,8 +12,8 @@ export default function ChatMessage({ message }) {
       transition={{ duration: 0.3 }}
       className={`chat-message ${isUser ? 'user-message' : 'assistant-message'} mb-4`}
     >
-      <div className="flex items-start space-x-4 max-w-4xl mx-auto">
-        <Avatar className="w-8 h-8 mt-1">
+      <div className="flex items-start space-x-4">
+        <Avatar className="w-8 h-8 mt-1 flex-shrink-0">
           <span className="sr-only">{message.role}</span>
           {isUser ? '👤' : '🤖'}
         </Avatar>

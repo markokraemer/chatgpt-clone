@@ -146,11 +146,13 @@
 }
 
 .chat-message-content {
-  @apply bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm max-w-3xl;
+  @apply bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm;
+  max-width: 80%;
+  width: fit-content;
 }
 
 .user-message .chat-message-content {
-  @apply bg-blue-500 text-white;
+  @apply bg-blue-500 text-white ml-auto;
 }
 
 .assistant-message .chat-message-content {
