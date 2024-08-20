@@ -4,16 +4,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ChatMessage from '@/components/ChatMessage';
 import Sidebar from '@/components/Sidebar';
-import { Loader2, Sun, Moon } from "lucide-react";
+import { Loader2, Sun, Moon, Settings } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "next-themes";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function Home() {
   const [currentChatId, setCurrentChatId] = useState(null);
   const [chatHistories, setChatHistories] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [selectedModel, setSelectedModel] = useState('gpt-3.5-turbo');
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
 
@@ -37,7 +42,7 @@ export default function Home() {
 
   const saveChatHistory = useCallback(() => {
     if (currentChatId && messages.length > 0) {
-      const updatedHistories = { ...chatHistories, [currentChatId]: messages };
+      const updatedHistories = { ...chatHistories, [currentChatId]: { name: `Chat ${Object.keys(chatHistories).length + 1}`, messages } };
       setChatHistories(updatedHistories);
       localStorage.setItem('chatHistories', JSON.stringify(updatedHistories));
     }
@@ -54,7 +59,7 @@ export default function Home() {
 
   const handleSelectChat = (chatId) => {
     setCurrentChatId(chatId);
-    setMessages(chatHistories[chatId] || []);
+    setMessages(chatHistories[chatId]?.messages || []);
   };
 
   const handleDeleteChat = (chatId) => {
@@ -115,11 +120,15 @@ export default function Home() {
         onDeleteChat={handleDeleteChat}
         onRenameChat={handleRenameChat}
         currentChatId={currentChatId}
+        chatHistories={chatHistories}
       />
       <div className="flex-1 flex flex-col">
         <div className="flex justify-between items-center p-4 bg-white dark:bg-gray-800">
           <Button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
             {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </Button>
+          <Button onClick={() => setShowSettings(true)}>
+            <Settings className="h-4 w-4 mr-2" /> Settings
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
@@ -174,6 +183,39 @@ export default function Home() {
           </div>
         </form>
       </div>
+      <Dialog open={showSettings} onOpenChange={setShowSettings}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Chat Settings</DialogTitle>
+            <DialogDescription>
+              Customize your chat experience here.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="model" className="text-right">
+                AI Model
+              </Label>
+              <Select
+                id="model"
+                value={selectedModel}
+                onValueChange={setSelectedModel}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select a model" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
+                  <SelectItem value="gpt-4">GPT-4</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setShowSettings(false)}>Save changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
